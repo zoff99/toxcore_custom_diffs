@@ -1,0 +1,79 @@
+commit b6da9a8d20017d7a875072bf4d1c525e78ccde21
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Sat Apr 16 09:10:11 2022 +0200
+
+    get group msg number in callback
+
+diff --git a/auto_tests/conference_test.c b/auto_tests/conference_test.c
+index 66edddd85..5f898e0f4 100644
+--- a/auto_tests/conference_test.c
++++ b/auto_tests/conference_test.c
+@@ -89,8 +89,11 @@ static uint32_t num_recv;
+ 
+ static void handle_conference_message(
+     Tox *tox, uint32_t groupnumber, uint32_t peernumber, Tox_Message_Type type,
+-    const uint8_t *message, size_t length, void *user_data)
++    const uint8_t *message2, size_t length2, void *user_data)
+ {
++    const uint8_t *message = message2 + 9;
++    size_t length = length2 - 9;
++    printf("groupmessage:%s %s %lu %zu %zu\n", message, GROUP_MESSAGE, (sizeof(GROUP_MESSAGE) - 1), length, length2);
+     if (length == (sizeof(GROUP_MESSAGE) - 1) && memcmp(message, GROUP_MESSAGE, sizeof(GROUP_MESSAGE) - 1) == 0) {
+         ++num_recv;
+     }
+@@ -304,6 +307,7 @@ static void run_conference_tests(AutoTox *autotoxes)
+         iterate_all_wait(autotoxes, NUM_GROUP_TOX, ITERATION_INTERVAL);
+     }
+ 
++    printf("num_recv == NUM_GROUP_TOX : %d == %d\n", num_recv, NUM_GROUP_TOX);
+     ck_assert_msg(num_recv == NUM_GROUP_TOX, "failed to recv group messages");
+ 
+     if (check_name_change_propagation) {
+diff --git a/toxcore/group.c b/toxcore/group.c
+index 0e851b1e3..bb0b14404 100644
+--- a/toxcore/group.c
++++ b/toxcore/group.c
+@@ -9,6 +9,7 @@
+ #include "group.h"
+ 
+ #include <assert.h>
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ 
+@@ -2848,6 +2849,9 @@ static void handle_message_packet_group(Group_Chats *g_c, uint32_t groupnumber,
+ 
+     uint32_t message_number;
+     memcpy(&message_number, data + sizeof(uint16_t), sizeof(message_number));
++
++    // HINT: uint32_t message number in network byte order
++    uint32_t message_number_network_byte_order = message_number;
+     message_number = net_ntohl(message_number);
+ 
+     const uint8_t message_id = data[sizeof(uint16_t) + sizeof(message_number)];
+@@ -2965,13 +2969,21 @@ static void handle_message_packet_group(Group_Chats *g_c, uint32_t groupnumber,
+                 return;
+             }
+ 
+-            VLA(uint8_t, newmsg, msg_data_len + 1);
+-            memcpy(newmsg, msg_data, msg_data_len);
+-            newmsg[msg_data_len] = 0;
++            // ATTENTION: !!add uint32_t message_number (as lowercase HEX) + ":" in front of the text message bytes!!
++#define HEX_MSG_NUM_LEN_COLON 9
++            VLA(uint8_t, newmsg, msg_data_len + 1 + HEX_MSG_NUM_LEN_COLON);
++            memset(newmsg, 0, msg_data_len + 1 + HEX_MSG_NUM_LEN_COLON);
++            uint8_t *t1 = (uint8_t *)(&(message_number_network_byte_order));
++            uint8_t *t2 = t1 + 1;
++            uint8_t *t3 = t1 + 2;
++            uint8_t *t4 = t1 + 3;
++            sprintf((char *)newmsg, "%02x%02x%02x%02x:", *t1, *t2, *t3, *t4); // BEWARE: this adds a NULL byte at the end
++            memcpy(newmsg + HEX_MSG_NUM_LEN_COLON, msg_data, msg_data_len);
++            newmsg[msg_data_len + HEX_MSG_NUM_LEN_COLON] = 0;
+ 
+             // TODO(irungentoo):
+             if (g_c->message_callback != nullptr) {
+-                g_c->message_callback(g_c->m, groupnumber, index, 0, newmsg, msg_data_len, userdata);
++                g_c->message_callback(g_c->m, groupnumber, index, 0, newmsg, (msg_data_len + HEX_MSG_NUM_LEN_COLON), userdata);
+             }
+ 
+             break;

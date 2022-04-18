@@ -1,0 +1,12 @@
+diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
+index 7cb56ad74..97692669f 100644
+--- a/toxcore/Messenger.c
++++ b/toxcore/Messenger.c
+@@ -1183,6 +1183,7 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
+             ||
+             (file_type == HACK_TOX_FILE_KIND_MESSAGEV2_ALTER)) {
+         ft->status = FILESTATUS_TRANSFERRING;
++        ++m->friendlist[friendnumber].num_sending_files;
+     } else {
+         ft->status = FILESTATUS_NOT_ACCEPTED;
+     }

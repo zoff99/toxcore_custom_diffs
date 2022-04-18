@@ -1,0 +1,135 @@
+commit f9c3f6ae6df3f170f4cc2ab4718456d6788e34fe
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Sun Apr 17 13:44:13 2022 +0200
+
+    custom tweaks for toxav and version
+
+diff --git a/toxcore/logger.c b/toxcore/logger.c
+index 3107e43fb..9b37821f0 100644
+--- a/toxcore/logger.c
++++ b/toxcore/logger.c
+@@ -118,3 +118,40 @@ void logger_write(const Logger *log, Logger_Level level, const char *file, int l
+ 
+     log->callback(log->context, level, file, line, func, msg, log->userdata);
+ }
++
++
++void logger_api_write(const Logger *log, Logger_Level level, const char *file, int line, const char *func,
++                      const char *format, va_list args)
++{
++    if (!log) {
++#ifdef USE_STDERR_LOGGER
++        log = &logger_stderr;
++#else
++        fprintf(stderr, "NULL logger not permitted.\n");
++        abort();
++#endif
++    }
++
++    if (!log->callback) {
++        return;
++    }
++
++    // Only pass the file name, not the entire file path, for privacy reasons.
++    // The full path may contain PII of the person compiling toxcore (their
++    // username and directory layout).
++    const char *filename = strrchr(file, '/');
++    file = filename ? filename + 1 : file;
++#if defined(_WIN32) || defined(__CYGWIN__)
++    // On Windows, the path separator *may* be a backslash, so we look for that
++    // one too.
++    const char *windows_filename = strrchr(file, '\\');
++    file = windows_filename ? windows_filename + 1 : file;
++#endif
++
++    // Format message
++    char msg[1024];
++    vsnprintf(msg, sizeof(msg), format, args);
++
++    log->callback(log->context, level, file, line, func, msg, log->userdata);
++}
++
+diff --git a/toxcore/logger.h b/toxcore/logger.h
+index 983ac6dfc..1b82a8f4b 100644
+--- a/toxcore/logger.h
++++ b/toxcore/logger.h
+@@ -69,6 +69,37 @@ void logger_write(
+     const Logger *log, Logger_Level level, const char *file, int line, const char *func,
+     const char *format, ...);
+ 
++void logger_api_write(const Logger *log, Logger_Level level, const char *file, int line, const char *func,
++                      const char *format, va_list args) GNU_PRINTF(6, 0);
++
++/**
++ * ==================================================================================================
++ * toxcore public api call to logger, used by ToxAV
++ */
++#ifndef TOX_DEFINED
++#define TOX_DEFINED
++typedef struct Tox Tox;
++#endif /* TOX_DEFINED */
++
++void tox_logmsg(const Tox *tox, Logger_Level level, const char *file, int line, const char *func, const char *fmt,
++                ...) GNU_PRINTF(6, 7);
++
++#define LOGGER_API_TRACE(tox, ...)   LOGGER_API_WRITE(tox, LOGGER_LEVEL_TRACE  , __VA_ARGS__)
++#define LOGGER_API_DEBUG(tox, ...)   LOGGER_API_WRITE(tox, LOGGER_LEVEL_DEBUG  , __VA_ARGS__)
++#define LOGGER_API_INFO(tox, ...)    LOGGER_API_WRITE(tox, LOGGER_LEVEL_INFO   , __VA_ARGS__)
++#define LOGGER_API_WARNING(tox, ...) LOGGER_API_WRITE(tox, LOGGER_LEVEL_WARNING, __VA_ARGS__)
++#define LOGGER_API_ERROR(tox, ...)   LOGGER_API_WRITE(tox, LOGGER_LEVEL_ERROR  , __VA_ARGS__)
++
++#define LOGGER_API_WRITE(tox, level, ...) \
++    do { \
++        if (level >= MIN_LOGGER_LEVEL) { \
++            tox_logmsg(tox, level, __FILE__, __LINE__, __func__, __VA_ARGS__); \
++        } \
++    } while (0)
++
++/**
++ * ==================================================================================================
++ */
+ 
+ #define LOGGER_WRITE(log, level, ...)                                            \
+     do {                                                                         \
+diff --git a/toxcore/tox.c b/toxcore/tox.c
+index c1af11921..f90cbf71f 100644
+--- a/toxcore/tox.c
++++ b/toxcore/tox.c
+@@ -2655,6 +2655,21 @@ uint16_t tox_self_get_tcp_port(const Tox *tox, Tox_Err_Get_Port *error)
+     return 0;
+ }
+ 
++void tox_logmsg(const Tox *tox, Logger_Level level, const char *file, int line, const char *func, const char *fmt, ...)
++{
++    if (!tox) {
++        return;
++    }
++
++    tox_lock(tox);
++    va_list args;
++    va_start(args, fmt);
++
++    logger_api_write(tox->m->log, level, file, line, func, fmt, args);
++
++    va_end(args);
++    tox_unlock(tox);
++}
+ 
+ /* * * * * * * * * * * * * * *
+  *
+diff --git a/toxcore/tox.h b/toxcore/tox.h
+index 2334948de..2d458ecdd 100644
+--- a/toxcore/tox.h
++++ b/toxcore/tox.h
+@@ -164,6 +164,11 @@ uint32_t tox_version_patch(void);
+ 
+ #define TOX_HAVE_TOXUTIL               1
+ 
++#define TOX_HAVE_TOXAV_CALLBACKS_002   1
++
++#define TOX_GIT_COMMIT_HASH "00000004"
++
++
+ //!TOKSTYLE-
+ /**
+  * @brief A macro to check at preprocessing time whether the client code is
