@@ -1,0 +1,110 @@
+commit ea9a04d286f7289c60fd0baa3d97fa20c7510e25
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Wed Apr 27 17:11:30 2022 +0200
+
+    0017_zoff_tc___fix_tox_group_peer_count_and_tox_group_get_peerlist_functions
+
+diff --git a/toxcore/group_chats.c b/toxcore/group_chats.c
+index b05aff470..f67230631 100644
+--- a/toxcore/group_chats.c
++++ b/toxcore/group_chats.c
+@@ -8082,6 +8082,31 @@ uint32_t copy_grouplist(const GC_Session *c, uint32_t *out_list, uint32_t list_s
+     return ret;
+ }
+ 
++uint32_t get_group_peercount(const GC_Chat *chat)
++{
++    if (chat == nullptr) {
++        return 0;
++    }
++
++    if (chat->numpeers == 0) {
++        return 0;
++    }
++
++    uint32_t sum = 0;
++
++    for (uint32_t i = 0; i < chat->numpeers; ++i) {
++        const GC_Connection *gconn = get_gc_connection(chat, i);
++
++        assert(gconn != nullptr);
++
++        if (gconn->confirmed) {
++            ++sum;
++        }
++    }
++
++    return sum;
++}
++
+ void copy_peerlist(const GC_Chat *chat, uint32_t *out_list)
+ {
+     if (out_list == nullptr) {
+@@ -8096,8 +8121,17 @@ void copy_peerlist(const GC_Chat *chat, uint32_t *out_list)
+         return;
+     }
+ 
++    uint32_t index = 0;
++
+     for (uint32_t i = 0; i < chat->numpeers; ++i) {
+-        out_list[i] = chat->group[i].peer_id;
++        const GC_Connection *gconn = get_gc_connection(chat, i);
++
++        assert(gconn != nullptr);
++
++        if (gconn->confirmed) {
++            out_list[index] = chat->group[i].peer_id;
++            ++index;
++        }
+     }
+ }
+ 
+diff --git a/toxcore/group_chats.h b/toxcore/group_chats.h
+index 0ea01afcc..d91433b45 100644
+--- a/toxcore/group_chats.h
++++ b/toxcore/group_chats.h
+@@ -684,6 +684,9 @@ uint32_t gc_count_groups(const GC_Session *c);
+ non_null()
+ uint32_t copy_grouplist(const GC_Session *c, uint32_t *out_list, uint32_t list_size);
+ 
++non_null()
++uint32_t get_group_peercount(const GC_Chat *chat);
++
+ non_null()
+ void copy_peerlist(const GC_Chat *chat, uint32_t *out_list);
+ 
+diff --git a/toxcore/tox.c b/toxcore/tox.c
+index 0106f46e4..8a5507b43 100644
+--- a/toxcore/tox.c
++++ b/toxcore/tox.c
+@@ -3466,7 +3466,7 @@ bool tox_group_self_get_public_key(const Tox *tox, uint32_t group_number, uint8_
+     return true;
+ }
+ 
+-size_t tox_group_peer_count(const Tox *tox, uint32_t group_number, Tox_Err_Group_Peer_Query *error)
++uint32_t tox_group_peer_count(const Tox *tox, uint32_t group_number, Tox_Err_Group_Peer_Query *error)
+ {
+     assert(tox != nullptr);
+ 
+@@ -3479,7 +3479,7 @@ size_t tox_group_peer_count(const Tox *tox, uint32_t group_number, Tox_Err_Group
+         return -1;
+     }
+ 
+-    const size_t ret = chat->numpeers;
++    const uint32_t ret = get_group_peercount(chat);
+     tox_unlock(tox);
+ 
+     SET_ERROR_PARAMETER(error, TOX_ERR_GROUP_PEER_QUERY_OK);
+diff --git a/toxcore/tox.h b/toxcore/tox.h
+index 3a77f4fa3..112fe851b 100644
+--- a/toxcore/tox.h
++++ b/toxcore/tox.h
+@@ -4068,7 +4068,7 @@ typedef enum Tox_Err_Group_Peer_Query {
+ } Tox_Err_Group_Peer_Query;
+ 
+ 
+-size_t tox_group_peer_count(const Tox *tox, uint32_t group_number, Tox_Err_Group_Peer_Query *error);
++uint32_t tox_group_peer_count(const Tox *tox, uint32_t group_number, Tox_Err_Group_Peer_Query *error);
+ 
+ void tox_group_get_peerlist(const Tox *tox, uint32_t group_number, uint32_t *peerlist, Tox_Err_Group_Peer_Query *error);
+ 

@@ -1,14 +1,14 @@
-commit 6472fd002f4997718a2a3fab46bbd8f1d8d29dcc
+commit e696d0508d66e77a251a6c1a8ee6ecaddb8dd2b6
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Mon Apr 18 09:43:14 2022 +0200
+Date:   Fri Apr 22 19:55:11 2022 +0200
 
-    onion active
+    0011_zoff_tc___onion_active
 
 diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
-index bc79c37b7..9306d04f5 100644
+index e36c4af55..56fcb4bbf 100644
 --- a/toxcore/Messenger.c
 +++ b/toxcore/Messenger.c
-@@ -42,6 +42,7 @@
+@@ -45,6 +45,7 @@
   */
  
  extern bool global_force_udp_only_mode;
@@ -16,7 +16,7 @@ index bc79c37b7..9306d04f5 100644
  
  static_assert(MAX_CONCURRENT_FILE_PIPES <= UINT8_MAX + 1,
                "uint8_t cannot represent all file transfer numbers");
-@@ -2419,7 +2420,9 @@ void do_messenger(Messenger *m, void *userdata)
+@@ -2603,7 +2604,9 @@ void do_messenger(Messenger *m, void *userdata)
      }
  
      do_net_crypto(m->net_crypto, userdata);
@@ -26,22 +26,22 @@ index bc79c37b7..9306d04f5 100644
 +    }
      do_friend_connections(m->fr_c, userdata);
      do_friends(m, userdata);
-     m_connection_status_callback(m, userdata);
+ #ifndef VANILLA_NACL
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index ee075cedd..f68f1d05b 100644
+index 6d7d5d3c0..54c58f75b 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -3030,3 +3030,8 @@ void tox_set_do_not_sync_av(bool value)
+@@ -4950,3 +4950,8 @@ void tox_set_do_not_sync_av(bool value)
+ {
      global_do_not_sync_av = value;
  }
- 
++
 +void tox_set_onion_active(bool value)
 +{
 +    global_onion_active = value;
 +}
-+
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 5b4f435ef..36a03cc12 100644
+index 4c95f9942..e7792ea40 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -386,6 +386,7 @@ uint32_t tox_max_hostname_length(void);

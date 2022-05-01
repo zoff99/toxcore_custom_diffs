@@ -1,8 +1,14 @@
+commit ca5c83a012cc91ab8d38ebb416e5369619a830ca
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Fri Apr 22 19:50:58 2022 +0200
+
+    0006_zoff_tc___custom_tweaks_with_global_vars
+
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index f90cbf71f..193343a36 100644
+index 2a97a3f19..4020e575e 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -28,6 +28,11 @@
+@@ -30,6 +30,11 @@
  
  #include "../toxencryptsave/defines.h"
  

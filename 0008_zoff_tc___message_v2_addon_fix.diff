@@ -1,8 +1,14 @@
+commit c5772f38b7db9593b251f4682dc0e4eb201cae7b
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Fri Apr 22 19:51:51 2022 +0200
+
+    0008_zoff_tc___message_v2_addon_fix
+
 diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
-index 7cb56ad74..97692669f 100644
+index 098a2e4a8..bd2cb6489 100644
 --- a/toxcore/Messenger.c
 +++ b/toxcore/Messenger.c
-@@ -1183,6 +1183,7 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
+@@ -1269,6 +1269,7 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
              ||
              (file_type == HACK_TOX_FILE_KIND_MESSAGEV2_ALTER)) {
          ft->status = FILESTATUS_TRANSFERRING;

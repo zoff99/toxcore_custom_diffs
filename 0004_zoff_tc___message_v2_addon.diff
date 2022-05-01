@@ -1,8 +1,8 @@
-commit 5f0d50d78127743bd477c22a0b35ac18d32871ca
+commit 5a4146e600823d49019e3f2213ebf19e8c0057f2
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Sat Apr 16 14:10:50 2022 +0200
+Date:   Fri Apr 22 19:48:54 2022 +0200
 
-    message v2 addon
+    0004_zoff_tc___message_v2_addon
 
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 4d39dab33..af76a9b26 100644
@@ -36,7 +36,7 @@ index 4d39dab33..af76a9b26 100644
      ],
  )
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ddef1bb72..2ba6b44b7 100644
+index 7c8b731a3..1d343a997 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -32,6 +32,7 @@ set_source_files_properties(
@@ -47,7 +47,7 @@ index ddef1bb72..2ba6b44b7 100644
    PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
  
  ################################################################################
-@@ -294,11 +295,14 @@ set(toxcore_SOURCES
+@@ -308,11 +309,14 @@ set(toxcore_SOURCES
    toxcore/tox_unpack.c
    toxcore/tox_unpack.h
    toxcore/util.c
@@ -84,7 +84,7 @@ index 623f8d285..afb594dfa 100644
  if [ "$SKIP_GTEST" == 1 ]; then
    FIND_QUERY="$FIND_QUERY -and -not -name '*_test.cc'"
 diff --git a/toxcore/Makefile.inc b/toxcore/Makefile.inc
-index 239154f6d..cafe16f59 100644
+index c7a01dc30..6904c9ca2 100644
 --- a/toxcore/Makefile.inc
 +++ b/toxcore/Makefile.inc
 @@ -1,7 +1,8 @@
@@ -97,7 +97,7 @@ index 239154f6d..cafe16f59 100644
  
  libtoxcore_la_includedir = $(includedir)/tox
  
-@@ -100,7 +101,8 @@ libtoxcore_la_SOURCES = ../third_party/cmp/cmp.c \
+@@ -113,7 +114,8 @@ libtoxcore_la_SOURCES = ../third_party/cmp/cmp.c \
                          ../toxcore/TCP_connection.h \
                          ../toxcore/TCP_connection.c \
                          ../toxcore/list.c \
@@ -108,10 +108,10 @@ index 239154f6d..cafe16f59 100644
  libtoxcore_la_CFLAGS =  -I$(top_srcdir) \
                          -I$(top_srcdir)/toxcore \
 diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
-index 1ce4a67ee..7cb56ad74 100644
+index 35b33c961..098a2e4a8 100644
 --- a/toxcore/Messenger.c
 +++ b/toxcore/Messenger.c
-@@ -21,6 +21,27 @@
+@@ -24,6 +24,27 @@
  #include "state.h"
  #include "util.h"
  
@@ -139,7 +139,7 @@ index 1ce4a67ee..7cb56ad74 100644
  static_assert(MAX_CONCURRENT_FILE_PIPES <= UINT8_MAX + 1,
                "uint8_t cannot represent all file transfer numbers");
  
-@@ -1123,6 +1144,19 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
+@@ -1209,6 +1230,19 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
          return -2;
      }
  
@@ -159,7 +159,7 @@ index 1ce4a67ee..7cb56ad74 100644
      uint32_t i;
  
      for (i = 0; i < MAX_CONCURRENT_FILE_PIPES; ++i) {
-@@ -1141,7 +1175,17 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
+@@ -1227,7 +1261,17 @@ long int new_filesender(const Messenger *m, int32_t friendnumber, uint32_t file_
  
      struct File_Transfers *ft = &m->friendlist[friendnumber].file_sending[i];
  
@@ -178,7 +178,7 @@ index 1ce4a67ee..7cb56ad74 100644
  
      ft->size = filesize;
  
-@@ -2070,7 +2114,23 @@ static int m_handle_packet(void *object, int i, const uint8_t *temp, uint16_t le
+@@ -2156,7 +2200,23 @@ static int m_handle_packet(void *object, int i, const uint8_t *temp, uint16_t le
                  break;
              }
  
@@ -204,10 +204,10 @@ index 1ce4a67ee..7cb56ad74 100644
              ft->transferred = 0;
              ft->paused = FILE_PAUSE_NOT;
 diff --git a/toxcore/Messenger.h b/toxcore/Messenger.h
-index 5e6897f85..a44359b01 100644
+index 04db27c03..4d30f056d 100644
 --- a/toxcore/Messenger.h
 +++ b/toxcore/Messenger.h
-@@ -95,7 +95,7 @@ typedef struct Messenger_Options {
+@@ -100,7 +100,7 @@ typedef struct Messenger_Options {
  #define TOX_CAPABILITY_NEXT_IMPLEMENTATION ((uint64_t)1) << 63
  /* hardcoded capabilities of this version/branch of toxcore */
  #ifdef TOX_CAPABILITIES_ACTIVE
@@ -217,14 +217,13 @@ index 5e6897f85..a44359b01 100644
  #define TOX_CAPABILITIES_CURRENT (uint64_t)(TOX_CAPABILITY_CAPABILITIES)
  #endif
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index e79abadff..c1af11921 100644
+index d8fa28d53..7285b30b4 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -2654,3 +2654,348 @@ uint16_t tox_self_get_tcp_port(const Tox *tox, Tox_Err_Get_Port *error)
-     tox_unlock(tox);
-     return 0;
- }
-+
+@@ -4575,3 +4575,348 @@ bool tox_group_mod_kick_peer(const Tox *tox, uint32_t group_number, uint32_t pee
+ 
+ #endif /* VANILLA_NACL */
+ 
 +
 +/* * * * * * * * * * * * * * *
 + *
@@ -569,8 +568,9 @@ index e79abadff..c1af11921 100644
 +
 +    return true;
 +}
++
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index c2ae4754b..2334948de 100644
+index ef019e8f5..8dd5c7807 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -162,6 +162,8 @@ uint32_t tox_version_minor(void);
@@ -650,10 +650,11 @@ index c2ae4754b..2334948de 100644
  
  typedef enum Tox_File_Control {
  
-@@ -3308,6 +3362,69 @@ uint16_t tox_self_get_udp_port(const Tox *tox, Tox_Err_Get_Port *error);
+@@ -3308,6 +3362,71 @@ uint16_t tox_self_get_udp_port(const Tox *tox, Tox_Err_Get_Port *error);
   */
  uint16_t tox_self_get_tcp_port(const Tox *tox, Tox_Err_Get_Port *error);
  
++
 +
 +
 +/*******************************************************************************
@@ -717,9 +718,10 @@ index c2ae4754b..2334948de 100644
 +
 +
 +
++
  /** @} */
  
- /** @} */
+ /*******************************************************************************
 diff --git a/toxutil/BUILD.bazel b/toxutil/BUILD.bazel
 new file mode 100644
 index 000000000..a4c7ba055

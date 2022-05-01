@@ -1,24 +1,24 @@
-commit d04b96a09970481e20c699cc75f7aa1f1d5a3f0a
+commit 0a13e302f9bd91d739718d2404bead9435bce1a1
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Mon Apr 18 09:37:27 2022 +0200
+Date:   Fri Apr 22 19:53:19 2022 +0200
 
-    do not sync av
+    0010_zoff_tc___do_not_sync_av
 
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index 50a2d2540..ee075cedd 100644
+index 0654ef406..6d7d5d3c0 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -3025,3 +3025,8 @@ void tox_set_force_udp_only_mode(bool value)
+@@ -4945,3 +4945,8 @@ void tox_set_force_udp_only_mode(bool value)
+ {
      global_force_udp_only_mode = value;
  }
- 
++
 +void tox_set_do_not_sync_av(bool value)
 +{
 +    global_do_not_sync_av = value;
 +}
-+
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 794fcc100..5b4f435ef 100644
+index 72c185b48..4c95f9942 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -385,6 +385,7 @@ uint32_t tox_max_hostname_length(void);

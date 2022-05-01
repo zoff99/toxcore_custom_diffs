@@ -1,14 +1,14 @@
-commit 2c71152fadc6ee0b043bef35667a48c43d4be898
+commit e4cc85e5ecd4a10738bc5815fe3b23ecf4572ae6
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Sat Apr 16 13:53:18 2022 +0200
+Date:   Fri Apr 22 19:43:44 2022 +0200
 
-    message v3 addon
+    0003_zoff_tc___message_v3_addon
 
 diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
-index d7388d54d..1ce4a67ee 100644
+index 7b34aeb57..35b33c961 100644
 --- a/toxcore/Messenger.c
 +++ b/toxcore/Messenger.c
-@@ -488,7 +488,7 @@ bool m_friend_exists(const Messenger *m, int32_t friendnumber)
+@@ -558,7 +558,7 @@ bool m_friend_exists(const Messenger *m, int32_t friendnumber)
  int m_send_message_generic(Messenger *m, int32_t friendnumber, uint8_t type, const uint8_t *message, uint32_t length,
                             uint32_t *message_id)
  {
@@ -17,7 +17,7 @@ index d7388d54d..1ce4a67ee 100644
          LOGGER_WARNING(m->log, "message type %d is invalid", type);
          return -5;
      }
-@@ -2001,7 +2001,8 @@ static int m_handle_packet(void *object, int i, const uint8_t *temp, uint16_t le
+@@ -2087,7 +2087,8 @@ static int m_handle_packet(void *object, int i, const uint8_t *temp, uint16_t le
          }
  
          case PACKET_ID_MESSAGE: // fall-through
@@ -28,18 +28,18 @@ index d7388d54d..1ce4a67ee 100644
                  break;
              }
 diff --git a/toxcore/Messenger.h b/toxcore/Messenger.h
-index dce79eed2..5e6897f85 100644
+index 974e83822..04db27c03 100644
 --- a/toxcore/Messenger.h
 +++ b/toxcore/Messenger.h
-@@ -33,6 +33,7 @@
+@@ -35,6 +35,7 @@
  typedef enum Message_Type {
      MESSAGE_NORMAL,
      MESSAGE_ACTION,
 +    MESSAGE_HIGH_LEVEL_ACK = 2,
  } Message_Type;
  
- typedef struct Messenger Messenger;
-@@ -94,7 +95,7 @@ typedef struct Messenger_Options {
+ #ifndef MESSENGER_DEFINED
+@@ -99,7 +100,7 @@ typedef struct Messenger_Options {
  #define TOX_CAPABILITY_NEXT_IMPLEMENTATION ((uint64_t)1) << 63
  /* hardcoded capabilities of this version/branch of toxcore */
  #ifdef TOX_CAPABILITIES_ACTIVE
@@ -49,7 +49,7 @@ index dce79eed2..5e6897f85 100644
  #define TOX_CAPABILITIES_CURRENT (uint64_t)(TOX_CAPABILITY_CAPABILITIES)
  #endif
 diff --git a/toxcore/crypto_core.c b/toxcore/crypto_core.c
-index 1ec2cee5f..fff91aa70 100644
+index f52282d02..4be4d8c69 100644
 --- a/toxcore/crypto_core.c
 +++ b/toxcore/crypto_core.c
 @@ -462,6 +462,11 @@ void random_nonce(const Random *rng, uint8_t *nonce)
@@ -85,7 +85,7 @@ index 0aaadeacf..5f525c747 100644
   * @brief Fill a key @ref CRYPTO_SYMMETRIC_KEY_SIZE big with random bytes.
   */
 diff --git a/toxcore/net_crypto.h b/toxcore/net_crypto.h
-index f6e062f3b..8fbc7bde3 100644
+index 0c3dfd0d4..573b3f364 100644
 --- a/toxcore/net_crypto.h
 +++ b/toxcore/net_crypto.h
 @@ -55,6 +55,7 @@
@@ -97,10 +97,10 @@ index f6e062f3b..8fbc7bde3 100644
  #define PACKET_ID_FILE_SENDREQUEST 80
  #define PACKET_ID_FILE_CONTROL 81
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index 845bee680..e79abadff 100644
+index 341b6ec1f..d8fa28d53 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -1039,6 +1039,17 @@ bool tox_self_set_name(Tox *tox, const uint8_t *name, size_t length, Tox_Err_Set
+@@ -1261,6 +1261,17 @@ bool tox_self_set_name(Tox *tox, const uint8_t *name, size_t length, Tox_Err_Set
      return false;
  }
  
@@ -119,7 +119,7 @@ index 845bee680..e79abadff 100644
  {
      assert(tox != nullptr);
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 2ce668c42..c2ae4754b 100644
+index 5cf04c1ee..ef019e8f5 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -298,6 +298,13 @@ uint32_t tox_max_friend_request_length(void);

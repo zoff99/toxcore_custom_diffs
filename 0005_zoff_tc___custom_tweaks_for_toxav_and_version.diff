@@ -1,14 +1,14 @@
-commit f9c3f6ae6df3f170f4cc2ab4718456d6788e34fe
+commit aae77c56edd46e4a8e23559ecbcf04f00f205b73
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Sun Apr 17 13:44:13 2022 +0200
+Date:   Fri Apr 22 19:50:30 2022 +0200
 
-    custom tweaks for toxav and version
+    0005_zoff_tc___custom_tweaks_for_toxav_and_version
 
 diff --git a/toxcore/logger.c b/toxcore/logger.c
-index 3107e43fb..9b37821f0 100644
+index 3107e43fb..35012b6c2 100644
 --- a/toxcore/logger.c
 +++ b/toxcore/logger.c
-@@ -118,3 +118,40 @@ void logger_write(const Logger *log, Logger_Level level, const char *file, int l
+@@ -118,3 +118,39 @@ void logger_write(const Logger *log, Logger_Level level, const char *file, int l
  
      log->callback(log->context, level, file, line, func, msg, log->userdata);
  }
@@ -48,7 +48,6 @@ index 3107e43fb..9b37821f0 100644
 +
 +    log->callback(log->context, level, file, line, func, msg, log->userdata);
 +}
-+
 diff --git a/toxcore/logger.h b/toxcore/logger.h
 index 983ac6dfc..1b82a8f4b 100644
 --- a/toxcore/logger.h
@@ -92,11 +91,11 @@ index 983ac6dfc..1b82a8f4b 100644
  #define LOGGER_WRITE(log, level, ...)                                            \
      do {                                                                         \
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index c1af11921..f90cbf71f 100644
+index 7285b30b4..2a97a3f19 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -2655,6 +2655,21 @@ uint16_t tox_self_get_tcp_port(const Tox *tox, Tox_Err_Get_Port *error)
-     return 0;
+@@ -4920,3 +4920,18 @@ bool tox_messagev2_get_message_text(const uint8_t *raw_message, uint32_t raw_mes
+     return true;
  }
  
 +void tox_logmsg(const Tox *tox, Logger_Level level, const char *file, int line, const char *func, const char *fmt, ...)
@@ -114,11 +113,8 @@ index c1af11921..f90cbf71f 100644
 +    va_end(args);
 +    tox_unlock(tox);
 +}
- 
- /* * * * * * * * * * * * * * *
-  *
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 2334948de..2d458ecdd 100644
+index 8dd5c7807..2261c1a59 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -164,6 +164,11 @@ uint32_t tox_version_patch(void);

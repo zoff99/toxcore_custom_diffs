@@ -1,14 +1,14 @@
-commit 571e0b8d9c00a37116e8e137c522159e713b13f4
+commit 23731a319f0fbec7b2b60ca71c390a080958cc30
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Mon Apr 18 09:31:36 2022 +0200
+Date:   Fri Apr 22 19:52:53 2022 +0200
 
-    force udp only mode
+    0009_zoff_tc___force_udp_only_mode
 
 diff --git a/toxcore/Messenger.c b/toxcore/Messenger.c
-index 97692669f..bc79c37b7 100644
+index bd2cb6489..e36c4af55 100644
 --- a/toxcore/Messenger.c
 +++ b/toxcore/Messenger.c
-@@ -41,6 +41,7 @@
+@@ -44,6 +44,7 @@
   * someone wanted not to include tox.h here
   */
  
@@ -16,7 +16,7 @@ index 97692669f..bc79c37b7 100644
  
  static_assert(MAX_CONCURRENT_FILE_PIPES <= UINT8_MAX + 1,
                "uint8_t cannot represent all file transfer numbers");
-@@ -3017,18 +3018,19 @@ static uint8_t *save_tcp_relays(const Messenger *m, uint8_t *data)
+@@ -3301,18 +3302,19 @@ static uint8_t *save_tcp_relays(const Messenger *m, uint8_t *data)
  non_null()
  static State_Load_Status load_tcp_relays(Messenger *m, const uint8_t *data, uint32_t length)
  {
@@ -46,7 +46,7 @@ index 97692669f..bc79c37b7 100644
  }
  
 diff --git a/toxcore/friend_connection.c b/toxcore/friend_connection.c
-index 9e5dee7cb..2aeeb807d 100644
+index 5ff016ed2..f8fc51c84 100644
 --- a/toxcore/friend_connection.c
 +++ b/toxcore/friend_connection.c
 @@ -17,6 +17,8 @@
@@ -224,21 +224,20 @@ index 9e5dee7cb..2aeeb807d 100644
  
  non_null()
 diff --git a/toxcore/tox.c b/toxcore/tox.c
-index 193343a36..50a2d2540 100644
+index 4020e575e..0654ef406 100644
 --- a/toxcore/tox.c
 +++ b/toxcore/tox.c
-@@ -3019,3 +3019,9 @@ bool tox_messagev2_get_message_text(const uint8_t *raw_message, uint32_t raw_mes
- 
-     return true;
+@@ -4940,3 +4940,8 @@ void tox_logmsg(const Tox *tox, Logger_Level level, const char *file, int line,
+     va_end(args);
+     tox_unlock(tox);
  }
 +
 +void tox_set_force_udp_only_mode(bool value)
 +{
 +    global_force_udp_only_mode = value;
 +}
-+
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 9a2f903a3..794fcc100 100644
+index 7c9c4cc73..72c185b48 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
 @@ -384,6 +384,7 @@ uint32_t tox_max_hostname_length(void);

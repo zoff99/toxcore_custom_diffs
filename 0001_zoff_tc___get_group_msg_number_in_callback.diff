@@ -1,8 +1,8 @@
-commit b6da9a8d20017d7a875072bf4d1c525e78ccde21
+commit c0aa794080fb4b11f2873228a136c744674486a5
 Author: zoff99 <zoff99@users.noreply.github.com>
-Date:   Sat Apr 16 09:10:11 2022 +0200
+Date:   Fri Apr 22 19:32:42 2022 +0200
 
-    get group msg number in callback
+    0001_zoff_tc___get_group_msg_number_in_callback
 
 diff --git a/auto_tests/conference_test.c b/auto_tests/conference_test.c
 index 66edddd85..5f898e0f4 100644

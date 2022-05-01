@@ -1,8 +1,14 @@
+commit 6534ed38127c6d29408c8d1208873aa4bc1c7805
+Author: zoff99 <zoff99@users.noreply.github.com>
+Date:   Fri Apr 22 19:51:26 2022 +0200
+
+    0007_zoff_tc___custom_tweaks_for_toxav
+
 diff --git a/toxcore/Messenger.h b/toxcore/Messenger.h
-index a44359b01..800106d6a 100644
+index 4d30f056d..86f2c2e9f 100644
 --- a/toxcore/Messenger.h
 +++ b/toxcore/Messenger.h
-@@ -95,9 +95,9 @@ typedef struct Messenger_Options {
+@@ -100,9 +100,9 @@ typedef struct Messenger_Options {
  #define TOX_CAPABILITY_NEXT_IMPLEMENTATION ((uint64_t)1) << 63
  /* hardcoded capabilities of this version/branch of toxcore */
  #ifdef TOX_CAPABILITIES_ACTIVE
@@ -15,10 +21,10 @@ index a44359b01..800106d6a 100644
  /* size of the FLAGS in bytes */
  #define TOX_CAPABILITIES_SIZE sizeof(uint64_t)
 diff --git a/toxcore/tox.h b/toxcore/tox.h
-index 2d458ecdd..9a2f903a3 100644
+index 2261c1a59..7c9c4cc73 100644
 --- a/toxcore/tox.h
 +++ b/toxcore/tox.h
-@@ -3482,6 +3482,22 @@ typedef Tox_Conference_Type TOX_CONFERENCE_TYPE;
+@@ -5556,6 +5556,22 @@ typedef Tox_Conference_Type TOX_CONFERENCE_TYPE;
  typedef enum Tox_File_Kind TOX_FILE_KIND;
  
  #endif
